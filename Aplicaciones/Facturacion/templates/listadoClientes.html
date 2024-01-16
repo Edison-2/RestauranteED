@@ -1,0 +1,151 @@
+{% extends "./plantilla.html" %}
+{% load static %}
+{% block contenido %}
+
+    <h1>Listado de Clientes</h1>
+    <br>
+    <ul>
+        <div class="row">
+            <div class="col-md-5">
+                <form class="" action="guardarCliente/" method="post" enctype="multipart/form-data" id="frm_new_cliente">
+                    {% csrf_token %}
+                    <b>Provincia:</b>
+                    <select class="form-control" name="provincia" id="provincia" required>
+                        <option value="">--Seleccione la Provincia--</option>
+                        {% for provincia in provincias %}
+                            <option value="{{ provincia.id_ed}}">{{ provincia.nombre_ed }}</option>
+                        {% endfor %}
+                    </select>
+                    <b>Nombre:</b>
+                    <input type="text" name="nombre" value="" id="nombre_ed" placeholder="Ingrese el Nombre" class="form-control" required>
+                    <b>Cedula:</b>
+                    <input type="text" name="cedula" value="" id="cedula_ed" placeholder="Ingrese la Cedula" class="form-control" required>
+                    <b>Correo:</b>
+                    <input type="email" name="correo" value="" id="correo_ed" placeholder="Ingrese el Correo" class="form-control" required>
+                    <b>Teléfono:</b>
+                    <input type="text" name="telefono" value="" id="telefono_ed" placeholder="Ingrese el Teléfono" class="form-control" required>
+                    <center>
+                        <button type="submit" name="button" class="btn btn-primary">Guardar</button>
+                        &nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;
+                        <button type="submit" name="button" class="btn btn-danger">Cancelar</button>
+                    </center>
+                </form>
+            </div>
+            <div class="col-md-7">
+                <img class="imagen" src="{% static 'img/imagen.png' %}" alt="">
+                <table class="table" id="tbl_clientes">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Cedula</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Provincia</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                            <tr>
+                                <td>{{ cliente.id_ed }}</td>
+                                <td>{{ cliente.nombre_ed}}</td>
+                                <td>{{ cliente.cedula_ed }}</td>
+                                <td>{{ cliente.correo_ed }}</td>
+                                <td>{{ cliente.telefono_ed }}</td>
+                                <td>{{ cliente.provincia.nombre_ed }}</td>
+                                <td>
+                                    <a href="/editarCliente/{{ cliente.id_ed }}" class="btn btn-warning">Editar</a>
+                                    <a href="javascript:void(0)" onclick="eliminarCliente('/eliminarCliente/{{ cliente.id_ed }}');" class="btn btn-danger">Eliminar</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </ul>
+
+    <script type="text/javascript">
+        function eliminarCliente(url){
+            iziToast.question({
+                timeout: 15000,
+                close: true,
+                overlay: true,
+                displayMode: 'once',
+                id: 'question',
+                zindex: 999,
+                title: 'CONFIRMACIÓN',
+                message: '¿Está seguro de eliminar el cliente seleccionado?',
+                position: 'center',
+                buttons: [
+                    ['<button><b>SI</b></button>', function (instance, toast) {
+                        instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+                        window.location.href = url;
+                    }, true],
+                    ['<button>NO</button>', function (instance, toast) {
+                        instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+                    }],
+                ]
+            });
+        }
+    </script>
+
+    <script type="text/javascript">
+        $("#frm_new_cliente").validate({
+            rules: {
+                "nombre": {
+                    required: true
+                },
+                "cedula": {
+                    required: true
+                },
+                "correo": {
+                    required: true,
+                    email: true
+                },
+                "telefono": {
+                    required: true
+                },
+                "provincia": {
+                    required: true
+                }
+            },
+            messages: {
+                "nombre": {
+                    required: "Ingrese el Nombre"
+                },
+                "cedula": {
+                    required: "Ingrese la Cedula"
+                },
+                "correo": {
+                    required: "Ingrese el Correo",
+                    email: "Correo no válido"
+                },
+                "telefono": {
+                    required: "Ingrese el Teléfono"
+                },
+                "provincia": {
+                    required: "Seleccione la Provincia"
+                }
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        $('#tbl_clientes').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'pdfHtml5',
+                    messageTop: 'PDF created by PDFMake with Buttons for DataTables.'
+                },
+                'print',
+                'csv'
+            ]
+        });
+    </script>
+
+{% endblock %}
